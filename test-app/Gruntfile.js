@@ -314,6 +314,24 @@ module.exports = function (grunt) {
                 'imagemin',
                 'svgmin'
             ]
+        },
+        
+        requirejs: {
+            compile: {
+                options: {
+                    baseUrl: '<%= yeoman.app %>/scripts',
+                    name: '../bower_components/almond/almond',
+                    out: '<%= yeoman.dist %>/scripts/main.js',
+                    include: ['main']
+                }
+            }
+        },
+        
+        htmlrefs: {
+            dist: {
+                src: '<%= yeoman.dist %>/index.html',
+                dest: '<%= yeoman.dist %>/index.html'
+            }
         }
     });
 
@@ -356,11 +374,13 @@ module.exports = function (grunt) {
         'clean:dist',
         'useminPrepare',
         'concurrent:dist',
+        'requirejs',
         'autoprefixer',
         'concat',
         'cssmin',
         'uglify',
         'copy:dist',
+        'htmlrefs:dist',
         'modernizr',
         'rev',
         'usemin',
