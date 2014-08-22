@@ -45,6 +45,13 @@ module.exports = function (grunt) {
                 files: ['<%= yeoman.app %>/styles/{,*/}*.css'],
                 tasks: ['newer:copy:styles', 'autoprefixer']
             },
+            handlebars: {
+                files: ['<%= yeoman.app %>/templates/**/*.hbs'],
+                tasks: ['handlebars'],
+                options: {
+                    livereload: true
+                }
+            },
             livereload: {
                 options: {
                     livereload: '<%= connect.options.livereload %>'
@@ -112,7 +119,8 @@ module.exports = function (grunt) {
         jshint: {
             options: {
                 jshintrc: '.jshintrc',
-                reporter: require('jshint-stylish')
+                reporter: require('jshint-stylish'),
+                ignores: '<%= yeoman.app %>/scripts/templates.js'
             },
             all: [
                 'Gruntfile.js',
@@ -122,20 +130,16 @@ module.exports = function (grunt) {
             ]
         },
 
-
-        // Mocha testing framework configuration options
-        mocha: {
-            all: {
+       
+        jasmine: {
+            test: {
                 options: {
-                    run: true,
-                    urls: ['http://<%= connect.test.options.hostname %>:<%= connect.test.options.port %>/index.html']
+                    specs: 'test/spec/**/*.js',
+                    template: require('grunt-template-jasmine-requirejs'),
+                    vendor: 'test/bower_components/modernizr/modernizr.js'
                 }
             }
         },
-
-
-
-
 
         // Add vendor prefixed styles
         autoprefixer: {
@@ -322,7 +326,8 @@ module.exports = function (grunt) {
                     baseUrl: '<%= yeoman.app %>/scripts',
                     name: '../bower_components/almond/almond',
                     out: '<%= yeoman.dist %>/scripts/main.js',
-                    include: ['main']
+                    include: ['main'],
+                    mainConfigFile: '<%= yeoman.app %>/dev-require-config.js'
                 }
             }
         },
@@ -332,7 +337,20 @@ module.exports = function (grunt) {
                 src: '<%= yeoman.dist %>/index.html',
                 dest: '<%= yeoman.dist %>/index.html'
             }
+        },
+        
+        handlebars: {
+            options: {
+                amd: true
+            },
+            all: {
+                files: {
+                    '<%= yeoman.app %>/scripts/templates.js': '<%= yeoman.app %>/templates/**/*.hbs'
+                    //  key = output files                                // value = source files
+                }
+            }
         }
+        
     });
 
 
@@ -344,6 +362,7 @@ module.exports = function (grunt) {
         grunt.task.run([
             'clean:server',
             'concurrent:server',
+            'handlebars',
             'autoprefixer',
             'connect:livereload',
             'watch'
@@ -366,7 +385,7 @@ module.exports = function (grunt) {
 
         grunt.task.run([
             'connect:test',
-            'mocha'
+            'jasmine'
         ]);
     });
 
@@ -375,6 +394,7 @@ module.exports = function (grunt) {
         'useminPrepare',
         'concurrent:dist',
         'requirejs',
+        'handlebars',
         'autoprefixer',
         'concat',
         'cssmin',
